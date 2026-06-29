@@ -623,9 +623,14 @@ canvas{display:block;margin:0 auto}
       <div><div style="font-size:13px;color:var(--t2);margin-bottom:4px">Häufiger Fehler</div><input type="text" id="cex-error" placeholder="Was soll ich vermeiden?"></div>
       <div><div style="font-size:13px;color:var(--t2);margin-bottom:6px">Foto / Video</div>
         <div class="photo-grid" id="cex-media" style="grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px"></div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-s" style="flex:1;font-size:13px" onclick="document.getElementById('cex-photo').click()"><i class="ti ti-camera"></i> Foto</button>
-          <button class="btn btn-s" style="flex:1;font-size:13px" onclick="document.getElementById('cex-video').click()"><i class="ti ti-video"></i> Video</button>
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          <button class="btn btn-s" style="flex:1;font-size:12px" onclick="document.getElementById('cex-photo').click()"><i class="ti ti-camera"></i> Foto</button>
+          <button class="btn btn-s" style="flex:1;font-size:12px" onclick="document.getElementById('cex-video').click()"><i class="ti ti-video"></i> Video</button>
+          <button class="btn btn-s" style="flex:1;font-size:12px" onclick="addCexYoutube()"><i class="ti ti-brand-youtube" style="color:#f00"></i> YouTube</button>
+        </div>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="cex-yt-url" placeholder="YouTube Link einfügen..." style="flex:1;font-size:13px">
+          <button class="btn btn-p" style="padding:8px 12px;font-size:13px" onclick="addCexYoutube()"><i class="ti ti-plus"></i></button>
         </div>
         <input type="file" id="cex-photo" accept="image/*" style="display:none" multiple onchange="addCexMedia(event,'photo')">
         <input type="file" id="cex-video" accept="video/*" style="display:none" multiple onchange="addCexMedia(event,'video')">
@@ -991,8 +996,8 @@ function renderLibrary(){
     const lc=ex.level==='L'?'bl':ex.level==='M'?'bm':'bh';
     const ln=ex.level==='L'?'Leicht':ex.level==='M'?'Mittel':'Schwer';
     const customTag=ex.custom?'<span class="badge bb">✏️ Eigene</span>':'';
-    const mediaHTML=(ex.custom&&ex.media&&ex.media.length)?ex.media.map(m=>m.type==='video'?`<video src="${m.src}" style="width:100%;max-height:160px;border-radius:8px;display:block" controls></video>`:`<img src="${m.src}" style="width:100%;max-height:160px;object-fit:contain;border-radius:8px;display:block">`).join(''):'';
-    const myMedia=(!ex.custom)?`<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px"><div style="font-size:11px;color:var(--t2);margin-bottom:6px;font-weight:600;text-transform:uppercase">Meine Medien</div><div class="photo-grid" id="ex-media-${ex.id}" style="grid-template-columns:repeat(4,1fr);gap:5px"></div><div style="display:flex;gap:6px;margin-top:7px"><button class="btn btn-s" style="flex:1;padding:6px;font-size:12px" onclick="document.getElementById('ex-ph-${ex.id}').click()"><i class="ti ti-camera"></i> Foto</button><button class="btn btn-s" style="flex:1;padding:6px;font-size:12px" onclick="document.getElementById('ex-vd-${ex.id}').click()"><i class="ti ti-video"></i> Video</button></div><input type="file" id="ex-ph-${ex.id}" accept="image/*" style="display:none" onchange="addExMedia(event,'${ex.id}','photo')"><input type="file" id="ex-vd-${ex.id}" accept="video/*" style="display:none" onchange="addExMedia(event,'${ex.id}','video')"></div>`:'';
+    const mediaHTML=(ex.custom&&ex.media&&ex.media.length)?ex.media.map(m=>m.type==='video'?`<video muted playsinline webkit-playsinline src="${m.src}" style="width:100%;max-height:160px;border-radius:8px;display:block" controls></video>`:`<img src="${m.src}" style="width:100%;max-height:160px;object-fit:contain;border-radius:8px;display:block">`).join(''):'';
+    const myMedia=(!ex.custom)?`<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px"><div style="font-size:11px;color:var(--t2);margin-bottom:6px;font-weight:600;text-transform:uppercase">Meine Medien</div><div class="photo-grid" id="ex-media-${ex.id}" style="grid-template-columns:repeat(4,1fr);gap:5px"></div><div style="display:flex;gap:5px;margin-top:7px"><button class="btn btn-s" style="flex:1;padding:6px;font-size:11px" onclick="document.getElementById('ex-ph-${ex.id}').click()"><i class="ti ti-camera"></i> Foto</button><button class="btn btn-s" style="flex:1;padding:6px;font-size:11px" onclick="document.getElementById('ex-vd-${ex.id}').click()"><i class="ti ti-video"></i> Video</button><button class="btn btn-s" style="flex:1;padding:6px;font-size:11px" onclick="addExYoutube('${ex.id}')"><i class="ti ti-brand-youtube" style="color:#f00"></i> YT</button></div><div style="display:flex;gap:5px;margin-top:5px"><input type="text" id="ex-yt-${ex.id}" placeholder="YouTube Link..." style="flex:1;font-size:12px;padding:6px 8px"><button class="btn btn-p" style="padding:6px 10px" onclick="addExYoutube('${ex.id}')"><i class="ti ti-plus"></i></button></div><input type="file" id="ex-ph-${ex.id}" accept="image/*" style="display:none" onchange="addExMedia(event,'${ex.id}','photo')"><input type="file" id="ex-vd-${ex.id}" accept="video/*" style="display:none" onchange="addExMedia(event,'${ex.id}','video')"></div>`:'';
     const editBtn=ex.custom?`<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-s" style="flex:1;font-size:13px" onclick="editCustomEx('${ex.id}')"><i class="ti ti-edit"></i> Bearbeiten</button><button class="btn btn-r" style="flex:1;font-size:13px" onclick="deleteCustomEx('${ex.id}')"><i class="ti ti-trash"></i> Löschen</button></div>`:'';
     return`<div class="ex-card" id="ex-card-${ex.id}"><div class="ex-header" onclick="toggleLib('${ex.id}')"><div style="flex:1"><div style="font-size:16px;font-weight:500">${ex.name}</div><div style="font-size:13px;color:var(--t2);margin-top:2px">${ex.sets} · ${ex.muscle}</div><div style="margin-top:5px"><span class="badge ${lc}">${ln}</span><span class="badge" style="background:var(--card2);color:var(--t2)">${ex.equip||'Keine'}</span>${customTag}</div></div><i class="ti ti-chevron-down" id="chev-${ex.id}" style="color:var(--t3);font-size:18px"></i></div><div class="ex-body" id="body-${ex.id}">${mediaHTML?'<div style="background:#111318;padding:10px">'+mediaHTML+'</div>':''}<div style="background:#111318;padding:10px 0 6px"><canvas id="anim-${ex.id}" width="260" height="130"></canvas><div style="font-size:13px;color:var(--t2);text-align:center;margin-top:5px;padding:0 12px">${ex.desc||''}</div></div><div style="padding:14px"><div style="font-size:11px;color:var(--t2);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Schritt für Schritt</div>${(ex.steps||[]).map((st,i)=>`<div style="display:flex;gap:9px;margin-bottom:9px;align-items:flex-start"><div style="width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">${i+1}</div><div style="font-size:14px;line-height:1.6">${st}</div></div>`).join('')}${ex.error?`<div style="background:#1a0f0f;border:1px solid #3a1010;border-radius:8px;padding:9px 12px;font-size:13px;color:#f87171;margin-top:7px"><i class="ti ti-alert-triangle" style="margin-right:5px"></i><strong>Fehler:</strong> ${ex.error}</div>`:''}${myMedia}${editBtn}<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-s" style="flex:1;font-size:13px" onclick="addToBuilderFromLib('${ex.id}')"><i class="ti ti-plus"></i> Baukasten</button>${ex.custom?'':`<button class="btn btn-r" style="padding:10px 14px;font-size:13px" onclick="deleteBuiltinEx('${ex.id}')"><i class="ti ti-trash"></i></button>`}</div></div></div></div>`;
   }).join('');
@@ -1040,14 +1045,33 @@ function addExMedia(e,exId,type){const f=e.target.files[0];if(!f)return;const r=
     }
     renderExMedia(exId);};r.readAsDataURL(f);e.target.value='';}
 function renderExMedia(exId){const g=document.getElementById('ex-media-'+exId);if(!g)return;const m=(S.exMedia&&S.exMedia[exId])||[];g.innerHTML=m.map((x,i)=>x.type==='video'?`<div class="photo-thumb" style="height:60px"><video src="${x.src}" style="width:100%;height:100%;object-fit:cover" muted playsinline controls></video><button onclick="delExMedia('${exId}',${i})" style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:9px">✕</button></div>`:`<div class="photo-thumb" style="height:60px"><img src="${x.src}" style="width:100%;height:100%;object-fit:cover"><button onclick="delExMedia('${exId}',${i})" style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:9px">✕</button></div>`).join('');}
-function delExMedia(exId,i){S.exMedia[exId].splice(i,1);save();renderExMedia(exId);}
+function delExMedia(exId,i){
+  if(!S.exMedia||!S.exMedia[exId])return;
+  S.exMedia[exId].splice(i,1);save();
+  if(!S.exMedia[exId].length){
+    const animWrap=document.getElementById('anim-'+exId);
+    if(animWrap&&animWrap.parentElement){
+      animWrap.parentElement.innerHTML='<canvas id="anim-'+exId+'" width="260" height="130"></canvas>';
+      const ex=allEx().find(e=>e.id===exId);
+      setTimeout(()=>startAnim('anim-'+exId,ex?.anim||'pushup'),50);
+      return;
+    }
+  }
+  renderExMedia(exId);
+}
 
 // ═══════════════════════════════════════════
 // CUSTOM EXERCISES
 // ═══════════════════════════════════════════
 function showModal_customEx(editId){cexMedia=[];['name','desc','s1','s2','s3','s4','error','sets'].forEach(f=>{const e=document.getElementById('cex-'+f);if(e)e.value='';});document.getElementById('cex-muscle').value='Brust';document.getElementById('cex-level').value='M';document.getElementById('cex-edit-id').value=editId||'';document.getElementById('cex-media').innerHTML='';if(editId){const ex=(S.customExercises||[]).find(e=>e.id===editId);if(ex){document.getElementById('cex-name').value=ex.name||'';document.getElementById('cex-muscle').value=ex.muscle||'Brust';document.getElementById('cex-level').value=ex.level||'M';document.getElementById('cex-sets').value=ex.sets||'';document.getElementById('cex-desc').value=ex.desc||'';if(ex.steps)ex.steps.forEach((s,i)=>{const e=document.getElementById('cex-s'+(i+1));if(e)e.value=s;});document.getElementById('cex-error').value=ex.error||'';cexMedia=ex.media?[...ex.media]:[];renderCexMedia();}}showModal('modal-custom-ex');}
 function addCexMedia(e,type){Array.from(e.target.files).forEach(f=>{const r=new FileReader();r.onload=ev=>{cexMedia.push({src:ev.target.result,type,name:f.name});renderCexMedia();};r.readAsDataURL(f);});e.target.value='';}
-function renderCexMedia(){const g=document.getElementById('cex-media');if(!g)return;g.innerHTML=cexMedia.map((m,i)=>m.type==='video'?`<div class="photo-thumb" style="height:60px"><video src="${m.src}" style="width:100%;height:100%;object-fit:cover" muted playsinline controls></video><button onclick="cexMedia.splice(${i},1);renderCexMedia()" style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:9px">✕</button></div>`:`<div class="photo-thumb" style="height:60px"><img src="${m.src}" style="width:100%;height:100%;object-fit:cover"><button onclick="cexMedia.splice(${i},1);renderCexMedia()" style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:9px">✕</button></div>`).join('');}
+function renderCexMedia(){
+  const g=document.getElementById('cex-media');if(!g)return;
+  g.style.gridTemplateColumns='repeat(3,1fr)';
+  g.innerHTML=cexMedia.map((m,i)=>renderThumbItem(m,i,'delCexMedia')).join('');
+}
+function delCexMedia(i){cexMedia.splice(i,1);renderCexMedia();}
+
 function saveCustomEx(){const name=document.getElementById('cex-name').value.trim();if(!name){alert('Bitte Name eingeben!');return;}const editId=document.getElementById('cex-edit-id').value;const steps=['s1','s2','s3','s4'].map(s=>document.getElementById('cex-'+s).value.trim()).filter(Boolean);const ex={id:editId||'cex'+Date.now(),name,muscle:document.getElementById('cex-muscle').value,level:document.getElementById('cex-level').value,sets:document.getElementById('cex-sets').value||'3×10',desc:document.getElementById('cex-desc').value.trim(),steps,error:document.getElementById('cex-error').value.trim(),media:[...cexMedia],custom:true,equip:'Eigene',anim:'pushup'};if(!S.customExercises)S.customExercises=[];if(editId){const i=S.customExercises.findIndex(e=>e.id===editId);if(i>=0)S.customExercises[i]=ex;else S.customExercises.push(ex);}else S.customExercises.push(ex);save();hideModal('modal-custom-ex');renderLibrary();}
 function editCustomEx(id){showModal_customEx(id);}
 function deleteCustomEx(id){if(!confirm('Übung löschen?'))return;S.customExercises=(S.customExercises||[]).filter(e=>e.id!==id);save();renderLibrary();}
@@ -1339,6 +1363,61 @@ function deleteBuiltinEx(id){
 function restoreAllEx(){
   if(!confirm('Alle gelöschten Übungen wiederherstellen?'))return;
   S.hiddenEx=[];save();renderLibrary();
+}
+
+// ═══════════════════════════════════════
+// YOUTUBE HELPER
+// ═══════════════════════════════════════
+function ytId(url){
+  const m=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  return m?m[1]:null;
+}
+function ytEmbed(id,w='100%',h='200'){
+  return`<iframe src="https://www.youtube.com/embed/${id}?playsinline=1&rel=0" width="${w}" height="${h}" frameborder="0" allowfullscreen allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" style="border-radius:8px;display:block;width:100%"></iframe>`;
+}
+function renderMediaItem(m,i,delFn){
+  if(m.type==='youtube')
+    return`<div style="margin-bottom:8px;position:relative">${ytEmbed(m.ytId)}<button onclick="${delFn}(${i})" style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:12px">✕</button></div>`;
+  if(m.type==='video')
+    return`<div style="margin-bottom:8px;position:relative"><video src="${m.src}" style="width:100%;max-height:220px;border-radius:8px;display:block" controls muted playsinline webkit-playsinline preload="metadata"></video><button onclick="${delFn}(${i})" style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:12px">✕</button></div>`;
+  return`<div style="margin-bottom:8px;position:relative"><img src="${m.src}" style="width:100%;max-height:220px;object-fit:contain;border-radius:8px;display:block"><button onclick="${delFn}(${i})" style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:12px">✕</button></div>`;
+}
+function renderThumbItem(m,i,delFn){
+  if(m.type==='youtube')
+    return`<div class="photo-thumb" style="position:relative"><img src="https://img.youtube.com/vi/${m.ytId}/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><i class="ti ti-brand-youtube" style="font-size:28px;color:#f00;filter:drop-shadow(0 0 4px #000)"></i></div><button onclick="${delFn}(${i})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:10px">✕</button></div>`;
+  if(m.type==='video')
+    return`<div class="photo-thumb" style="position:relative"><video src="${m.src}" style="width:100%;height:100%;object-fit:cover" muted playsinline webkit-playsinline preload="metadata"></video><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><i class="ti ti-player-play" style="font-size:24px;color:#fff;filter:drop-shadow(0 0 4px #000)"></i></div><button onclick="${delFn}(${i})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:10px">✕</button></div>`;
+  return`<div class="photo-thumb" style="position:relative"><img src="${m.src}" style="width:100%;height:100%;object-fit:cover"><button onclick="${delFn}(${i})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:10px">✕</button></div>`;
+}
+
+function addCexYoutube(){
+  const url=document.getElementById('cex-yt-url').value.trim();
+  if(!url)return;
+  const id=ytId(url);
+  if(!id){alert('Kein gültiger YouTube-Link!');return;}
+  cexMedia.push({type:'youtube',ytId:id});
+  renderCexMedia();
+  document.getElementById('cex-yt-url').value='';
+}
+
+function addExYoutube(exId){
+  const inp=document.getElementById('ex-yt-'+exId);
+  if(!inp)return;
+  const url=inp.value.trim();if(!url)return;
+  const id=ytId(url);
+  if(!id){alert('Kein gültiger YouTube-Link! Beispiel: https://youtube.com/watch?v=...');return;}
+  if(!S.exMedia)S.exMedia={};
+  if(!S.exMedia[exId])S.exMedia[exId]=[];
+  S.exMedia[exId].unshift({type:'youtube',ytId:id,date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'})});
+  save();inp.value='';
+  // Refresh animation area
+  const animCanvas=document.getElementById('anim-'+exId);
+  const animWrap=animCanvas?animCanvas.parentElement:null;
+  const myMedia=S.exMedia[exId];
+  if(myMedia.length&&animWrap){
+    animWrap.innerHTML=myMedia.map((m,i)=>renderMediaItem(m,i,`(i)=>delExMedia('${exId}',i)`)).join('');
+  }
+  renderExMedia(exId);
 }
 // ═══════════════════════════════════════════
 // INIT
