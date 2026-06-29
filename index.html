@@ -303,7 +303,10 @@ canvas{display:block;margin:0 auto}
 <div class="page" id="page-library">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:4px">
     <div style="font-size:13px;color:var(--t2)" id="lib-count"></div>
-    <button class="btn btn-p" style="padding:8px 14px;font-size:13px" onclick="showModal('modal-custom-ex')"><i class="ti ti-plus"></i> Eigene Übung</button>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-s" style="padding:8px 10px;font-size:13px" onclick="restoreAllEx()" title="Gelöschte wiederherstellen"><i class="ti ti-refresh"></i></button>
+      <button class="btn btn-p" style="padding:8px 14px;font-size:13px" onclick="showModal('modal-custom-ex')"><i class="ti ti-plus"></i> Eigene</button>
+    </div>
   </div>
   <div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="lib-search" placeholder="Übung suchen..." oninput="renderLibrary()"></div>
   <div class="filter-row" id="lib-filters"></div>
@@ -695,7 +698,7 @@ const BADGES=[{id:"first",icon:"🥇",name:"Erster Schritt",desc:"Erstes Workout
 // STATE
 // ═══════════════════════════════════════════
 const SK='bw_v4';
-const DEF={page:'home',theme:'dark',currentWorkout:{name:'Mark Lauren Basis',exIds:['hip-hinge','dead-bug','knie-push','scap','glute-bridge'],done:[]},templates:[{id:'t1',name:'Mark Lauren Basis',exIds:['hip-hinge','dead-bug','knie-push','scap','glute-bridge']},{id:'t2',name:'Cardio Boost',exIds:['burpee','mountain-climber','marching','squat','lunge']},{id:'t3',name:'Oberkörper',exIds:['push','wide-push','dips-chair','pike-push','curl-towel']}],builderWorkout:['burpee','push','squat','plank','dead-bug'],stats:{totalWorkouts:0,streak:0,totalMinutes:0,lastDate:'',weekWorkouts:[0,0,0,0,0,0,0]},weights:[],photos:[],measurements:[],prs:{},customExercises:[],calendarDays:{},wtLog:[],wtMedia:[],wtStats:{sessions:0,totalSec:0,streak:0,lastDate:''},runLog:[],runPRs:{},exMedia:{},profile:{},libFilter:'Alle'};
+const DEF={page:'home',hiddenEx:[],theme:'dark',currentWorkout:{name:'Mark Lauren Basis',exIds:['hip-hinge','dead-bug','knie-push','scap','glute-bridge'],done:[]},templates:[{id:'t1',name:'Mark Lauren Basis',exIds:['hip-hinge','dead-bug','knie-push','scap','glute-bridge']},{id:'t2',name:'Cardio Boost',exIds:['burpee','mountain-climber','marching','squat','lunge']},{id:'t3',name:'Oberkörper',exIds:['push','wide-push','dips-chair','pike-push','curl-towel']}],builderWorkout:['burpee','push','squat','plank','dead-bug'],stats:{totalWorkouts:0,streak:0,totalMinutes:0,lastDate:'',weekWorkouts:[0,0,0,0,0,0,0]},weights:[],photos:[],measurements:[],prs:{},customExercises:[],calendarDays:{},wtLog:[],wtMedia:[],wtStats:{sessions:0,totalSec:0,streak:0,lastDate:''},runLog:[],runPRs:{},exMedia:{},profile:{},libFilter:'Alle'};
 let S=loadState();
 let timerSec=90,timerRunning=false,timerIv=null;
 let warmupMode='warmup',warmupIdx=0,warmupSec=0,warmupRunning=false,warmupIv=null;
@@ -849,7 +852,7 @@ function startCountdown(){clearInterval(cdIv);let cd=10;cdIv=setInterval(()=>{pl
 // ═══════════════════════════════════════════
 // WORKOUT
 // ═══════════════════════════════════════════
-function allEx(){return[...EX,...(S.customExercises||[])];}
+function allEx(){const hidden=S.hiddenEx||[];return[...EX.filter(e=>!hidden.includes(e.id)),...(S.customExercises||[])];}
 function renderWorkout(){
   const wo=S.currentWorkout;
   document.getElementById('wo-title').textContent=wo.name;
@@ -991,7 +994,7 @@ function renderLibrary(){
     const mediaHTML=(ex.custom&&ex.media&&ex.media.length)?ex.media.map(m=>m.type==='video'?`<video src="${m.src}" style="width:100%;max-height:160px;border-radius:8px;display:block" controls></video>`:`<img src="${m.src}" style="width:100%;max-height:160px;object-fit:contain;border-radius:8px;display:block">`).join(''):'';
     const myMedia=(!ex.custom)?`<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px"><div style="font-size:11px;color:var(--t2);margin-bottom:6px;font-weight:600;text-transform:uppercase">Meine Medien</div><div class="photo-grid" id="ex-media-${ex.id}" style="grid-template-columns:repeat(4,1fr);gap:5px"></div><div style="display:flex;gap:6px;margin-top:7px"><button class="btn btn-s" style="flex:1;padding:6px;font-size:12px" onclick="document.getElementById('ex-ph-${ex.id}').click()"><i class="ti ti-camera"></i> Foto</button><button class="btn btn-s" style="flex:1;padding:6px;font-size:12px" onclick="document.getElementById('ex-vd-${ex.id}').click()"><i class="ti ti-video"></i> Video</button></div><input type="file" id="ex-ph-${ex.id}" accept="image/*" style="display:none" onchange="addExMedia(event,'${ex.id}','photo')"><input type="file" id="ex-vd-${ex.id}" accept="video/*" style="display:none" onchange="addExMedia(event,'${ex.id}','video')"></div>`:'';
     const editBtn=ex.custom?`<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-s" style="flex:1;font-size:13px" onclick="editCustomEx('${ex.id}')"><i class="ti ti-edit"></i> Bearbeiten</button><button class="btn btn-r" style="flex:1;font-size:13px" onclick="deleteCustomEx('${ex.id}')"><i class="ti ti-trash"></i> Löschen</button></div>`:'';
-    return`<div class="ex-card" id="ex-card-${ex.id}"><div class="ex-header" onclick="toggleLib('${ex.id}')"><div style="flex:1"><div style="font-size:16px;font-weight:500">${ex.name}</div><div style="font-size:13px;color:var(--t2);margin-top:2px">${ex.sets} · ${ex.muscle}</div><div style="margin-top:5px"><span class="badge ${lc}">${ln}</span><span class="badge" style="background:var(--card2);color:var(--t2)">${ex.equip||'Keine'}</span>${customTag}</div></div><i class="ti ti-chevron-down" id="chev-${ex.id}" style="color:var(--t3);font-size:18px"></i></div><div class="ex-body" id="body-${ex.id}">${mediaHTML?'<div style="background:#111318;padding:10px">'+mediaHTML+'</div>':''}<div style="background:#111318;padding:10px 0 6px"><canvas id="anim-${ex.id}" width="260" height="130"></canvas><div style="font-size:13px;color:var(--t2);text-align:center;margin-top:5px;padding:0 12px">${ex.desc||''}</div></div><div style="padding:14px"><div style="font-size:11px;color:var(--t2);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Schritt für Schritt</div>${(ex.steps||[]).map((st,i)=>`<div style="display:flex;gap:9px;margin-bottom:9px;align-items:flex-start"><div style="width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">${i+1}</div><div style="font-size:14px;line-height:1.6">${st}</div></div>`).join('')}${ex.error?`<div style="background:#1a0f0f;border:1px solid #3a1010;border-radius:8px;padding:9px 12px;font-size:13px;color:#f87171;margin-top:7px"><i class="ti ti-alert-triangle" style="margin-right:5px"></i><strong>Fehler:</strong> ${ex.error}</div>`:''}${myMedia}${editBtn}<button class="btn btn-s btn-full" style="margin-top:10px;font-size:13px" onclick="addToBuilderFromLib('${ex.id}')"><i class="ti ti-plus"></i> Zum Baukasten</button></div></div></div>`;
+    return`<div class="ex-card" id="ex-card-${ex.id}"><div class="ex-header" onclick="toggleLib('${ex.id}')"><div style="flex:1"><div style="font-size:16px;font-weight:500">${ex.name}</div><div style="font-size:13px;color:var(--t2);margin-top:2px">${ex.sets} · ${ex.muscle}</div><div style="margin-top:5px"><span class="badge ${lc}">${ln}</span><span class="badge" style="background:var(--card2);color:var(--t2)">${ex.equip||'Keine'}</span>${customTag}</div></div><i class="ti ti-chevron-down" id="chev-${ex.id}" style="color:var(--t3);font-size:18px"></i></div><div class="ex-body" id="body-${ex.id}">${mediaHTML?'<div style="background:#111318;padding:10px">'+mediaHTML+'</div>':''}<div style="background:#111318;padding:10px 0 6px"><canvas id="anim-${ex.id}" width="260" height="130"></canvas><div style="font-size:13px;color:var(--t2);text-align:center;margin-top:5px;padding:0 12px">${ex.desc||''}</div></div><div style="padding:14px"><div style="font-size:11px;color:var(--t2);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Schritt für Schritt</div>${(ex.steps||[]).map((st,i)=>`<div style="display:flex;gap:9px;margin-bottom:9px;align-items:flex-start"><div style="width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">${i+1}</div><div style="font-size:14px;line-height:1.6">${st}</div></div>`).join('')}${ex.error?`<div style="background:#1a0f0f;border:1px solid #3a1010;border-radius:8px;padding:9px 12px;font-size:13px;color:#f87171;margin-top:7px"><i class="ti ti-alert-triangle" style="margin-right:5px"></i><strong>Fehler:</strong> ${ex.error}</div>`:''}${myMedia}${editBtn}<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-s" style="flex:1;font-size:13px" onclick="addToBuilderFromLib('${ex.id}')"><i class="ti ti-plus"></i> Baukasten</button>${ex.custom?'':`<button class="btn btn-r" style="padding:10px 14px;font-size:13px" onclick="deleteBuiltinEx('${ex.id}')"><i class="ti ti-trash"></i></button>`}</div></div></div></div>`;
   }).join('');
 }
 function setLF(m){S.libFilter=m;save();renderLibrary();}
@@ -1000,11 +1003,43 @@ function toggleLib(id){
   const was=card.classList.contains('open');
   document.querySelectorAll('.ex-card.open').forEach(c=>c.classList.remove('open'));
   document.querySelectorAll('[id^="chev-"]').forEach(c=>{c.className='ti ti-chevron-down';c.style.color='var(--t3)';});
-  if(!was){card.classList.add('open');chev.className='ti ti-chevron-up';chev.style.color='var(--accent)';const ex=allEx().find(e=>e.id===id);setTimeout(()=>{startAnim('anim-'+id,ex?.anim||'pushup');renderExMedia(id);},50);}
+  if(!was){
+    card.classList.add('open');chev.className='ti ti-chevron-up';chev.style.color='var(--accent)';
+    const ex=allEx().find(e=>e.id===id);
+    setTimeout(()=>{
+      // Check if user has own media – if yes, show instead of animation
+      const myMedia=(S.exMedia&&S.exMedia[id])||[];
+      const animCanvas=document.getElementById('anim-'+id);
+      const animWrap=animCanvas?animCanvas.parentElement:null;
+      if(myMedia.length&&animWrap){
+        // Replace animation area with user media
+        animWrap.innerHTML=myMedia.map((m,i)=>
+          m.type==='video'
+            ?`<video src="${m.src}" style="width:100%;max-height:200px;border-radius:8px;display:block;margin-bottom:6px" controls muted playsinline></video>`
+            :`<img src="${m.src}" style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;display:block;margin-bottom:6px">`
+        ).join('');
+      } else {
+        startAnim('anim-'+id,ex?.anim||'pushup');
+      }
+      renderExMedia(id);
+    },50);
+  }
 }
 function addToBuilderFromLib(id){if(!S.builderWorkout)S.builderWorkout=[];if(!S.builderWorkout.includes(id))S.builderWorkout.push(id);save();showPage('workout');switchSubtab('workout','wt-builder');renderBuilder();}
-function addExMedia(e,exId,type){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{if(!S.exMedia)S.exMedia={};if(!S.exMedia[exId])S.exMedia[exId]=[];S.exMedia[exId].unshift({src:ev.target.result,type,date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'})});if(S.exMedia[exId].length>6)S.exMedia[exId].pop();save();renderExMedia(exId);};r.readAsDataURL(f);e.target.value='';}
-function renderExMedia(exId){const g=document.getElementById('ex-media-'+exId);if(!g)return;const m=(S.exMedia&&S.exMedia[exId])||[];g.innerHTML=m.map((x,i)=>x.type==='video'?`<div class="photo-thumb" style="height:60px"><video src="${x.src}" style="width:100%;height:100%;object-fit:cover" muted onclick="this.paused?this.play():this.pause()"></video><button onclick="delExMedia('${exId}',${i})" style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:9px">✕</button></div>`:`<div class="photo-thumb" style="height:60px"><img src="${x.src}" style="width:100%;height:100%;object-fit:cover"><button onclick="delExMedia('${exId}',${i})" style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:9px">✕</button></div>`).join('');}
+function addExMedia(e,exId,type){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{if(!S.exMedia)S.exMedia={};if(!S.exMedia[exId])S.exMedia[exId]=[];S.exMedia[exId].unshift({src:ev.target.result,type,date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'})});if(S.exMedia[exId].length>6)S.exMedia[exId].pop();save();
+    // Refresh animation area with new media
+    const myMedia=S.exMedia[exId];
+    const animCanvas=document.getElementById('anim-'+exId);
+    const animWrap=animCanvas?animCanvas.parentElement:null;
+    if(myMedia.length&&animWrap){
+      animWrap.innerHTML=myMedia.map((m,i)=>
+        m.type==='video'
+          ?`<video src="${m.src}" style="width:100%;max-height:200px;border-radius:8px;display:block;margin-bottom:6px" controls muted playsinline></video>`
+          :`<img src="${m.src}" style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;display:block;margin-bottom:6px">`
+      ).join('');
+    }
+    renderExMedia(exId);};r.readAsDataURL(f);e.target.value='';}
+function renderExMedia(exId){const g=document.getElementById('ex-media-'+exId);if(!g)return;const m=(S.exMedia&&S.exMedia[exId])||[];g.innerHTML=m.map((x,i)=>x.type==='video'?`<div class="photo-thumb" style="height:60px"><video src="${x.src}" style="width:100%;height:100%;object-fit:cover" muted playsinline controls></video><button onclick="delExMedia('${exId}',${i})" style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:9px">✕</button></div>`:`<div class="photo-thumb" style="height:60px"><img src="${x.src}" style="width:100%;height:100%;object-fit:cover"><button onclick="delExMedia('${exId}',${i})" style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:9px">✕</button></div>`).join('');}
 function delExMedia(exId,i){S.exMedia[exId].splice(i,1);save();renderExMedia(exId);}
 
 // ═══════════════════════════════════════════
@@ -1012,7 +1047,7 @@ function delExMedia(exId,i){S.exMedia[exId].splice(i,1);save();renderExMedia(exI
 // ═══════════════════════════════════════════
 function showModal_customEx(editId){cexMedia=[];['name','desc','s1','s2','s3','s4','error','sets'].forEach(f=>{const e=document.getElementById('cex-'+f);if(e)e.value='';});document.getElementById('cex-muscle').value='Brust';document.getElementById('cex-level').value='M';document.getElementById('cex-edit-id').value=editId||'';document.getElementById('cex-media').innerHTML='';if(editId){const ex=(S.customExercises||[]).find(e=>e.id===editId);if(ex){document.getElementById('cex-name').value=ex.name||'';document.getElementById('cex-muscle').value=ex.muscle||'Brust';document.getElementById('cex-level').value=ex.level||'M';document.getElementById('cex-sets').value=ex.sets||'';document.getElementById('cex-desc').value=ex.desc||'';if(ex.steps)ex.steps.forEach((s,i)=>{const e=document.getElementById('cex-s'+(i+1));if(e)e.value=s;});document.getElementById('cex-error').value=ex.error||'';cexMedia=ex.media?[...ex.media]:[];renderCexMedia();}}showModal('modal-custom-ex');}
 function addCexMedia(e,type){Array.from(e.target.files).forEach(f=>{const r=new FileReader();r.onload=ev=>{cexMedia.push({src:ev.target.result,type,name:f.name});renderCexMedia();};r.readAsDataURL(f);});e.target.value='';}
-function renderCexMedia(){const g=document.getElementById('cex-media');if(!g)return;g.innerHTML=cexMedia.map((m,i)=>m.type==='video'?`<div class="photo-thumb" style="height:60px"><video src="${m.src}" style="width:100%;height:100%;object-fit:cover"></video><button onclick="cexMedia.splice(${i},1);renderCexMedia()" style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:9px">✕</button></div>`:`<div class="photo-thumb" style="height:60px"><img src="${m.src}" style="width:100%;height:100%;object-fit:cover"><button onclick="cexMedia.splice(${i},1);renderCexMedia()" style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:9px">✕</button></div>`).join('');}
+function renderCexMedia(){const g=document.getElementById('cex-media');if(!g)return;g.innerHTML=cexMedia.map((m,i)=>m.type==='video'?`<div class="photo-thumb" style="height:60px"><video src="${m.src}" style="width:100%;height:100%;object-fit:cover" muted playsinline controls></video><button onclick="cexMedia.splice(${i},1);renderCexMedia()" style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:9px">✕</button></div>`:`<div class="photo-thumb" style="height:60px"><img src="${m.src}" style="width:100%;height:100%;object-fit:cover"><button onclick="cexMedia.splice(${i},1);renderCexMedia()" style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:9px">✕</button></div>`).join('');}
 function saveCustomEx(){const name=document.getElementById('cex-name').value.trim();if(!name){alert('Bitte Name eingeben!');return;}const editId=document.getElementById('cex-edit-id').value;const steps=['s1','s2','s3','s4'].map(s=>document.getElementById('cex-'+s).value.trim()).filter(Boolean);const ex={id:editId||'cex'+Date.now(),name,muscle:document.getElementById('cex-muscle').value,level:document.getElementById('cex-level').value,sets:document.getElementById('cex-sets').value||'3×10',desc:document.getElementById('cex-desc').value.trim(),steps,error:document.getElementById('cex-error').value.trim(),media:[...cexMedia],custom:true,equip:'Eigene',anim:'pushup'};if(!S.customExercises)S.customExercises=[];if(editId){const i=S.customExercises.findIndex(e=>e.id===editId);if(i>=0)S.customExercises[i]=ex;else S.customExercises.push(ex);}else S.customExercises.push(ex);save();hideModal('modal-custom-ex');renderLibrary();}
 function editCustomEx(id){showModal_customEx(id);}
 function deleteCustomEx(id){if(!confirm('Übung löschen?'))return;S.customExercises=(S.customExercises||[]).filter(e=>e.id!==id);save();renderLibrary();}
@@ -1108,7 +1143,7 @@ function saveWTSession(){
 function renderWTStats(){const st=S.wtStats||{};const el1=document.getElementById('wt-sessions');if(el1)el1.textContent=st.sessions||0;const el2=document.getElementById('wt-time-h');if(el2)el2.textContent=Math.round((st.totalSec||0)/3600*10)/10+'h';const el3=document.getElementById('wt-streak-v');if(el3)el3.textContent='🔥'+(st.streak||0);}
 function renderWTLog(){const el=document.getElementById('wt-log-list');if(!el)return;const log=S.wtLog||[];if(!log.length){el.innerHTML='<div style="font-size:14px;color:var(--t3);text-align:center;padding:12px">Noch keine Sessions</div>';return;}el.innerHTML=log.slice(0,10).map(e=>`<div class="card2" style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"><div style="font-size:15px;font-weight:600;color:var(--purple)">${e.form}</div><div style="font-size:12px;color:var(--t2)">${e.date} ${e.time||''}</div></div>${e.duration>0?`<div style="font-size:13px;color:var(--t2)">⏱ ${fmt(e.duration)} Min</div>`:''}${e.notes?`<div style="font-size:13px;color:var(--t1);margin-top:4px;line-height:1.5">${e.notes}</div>`:''}</div>`).join('');}
 function addWTMedia(e,type){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{if(!S.wtMedia)S.wtMedia=[];S.wtMedia.unshift({src:ev.target.result,type,date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'})});if(S.wtMedia.length>20)S.wtMedia.pop();save();renderWTMedia();};r.readAsDataURL(f);e.target.value='';}
-function renderWTMedia(){const g=document.getElementById('wt-media-grid');if(!g)return;const m=S.wtMedia||[];let html=m.map((x,i)=>x.type==='video'?`<div class="photo-thumb"><video src="${x.src}" style="width:100%;height:100%;object-fit:cover" muted onclick="this.paused?this.play():this.pause()"></video><button onclick="delWTMedia(${i})" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;border:none;cursor:pointer;font-size:11px">✕</button></div>`:`<div class="photo-thumb"><img src="${x.src}" alt=""><button onclick="delWTMedia(${i})" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;border:none;cursor:pointer;font-size:11px">✕</button></div>`).join('');html+=`<div class="photo-thumb photo-add" onclick="document.getElementById('wt-photo-in').click()"><i class="ti ti-plus" style="font-size:24px"></i><span>Hinzu</span></div>`;g.innerHTML=html;}
+function renderWTMedia(){const g=document.getElementById('wt-media-grid');if(!g)return;const m=S.wtMedia||[];let html=m.map((x,i)=>x.type==='video'?`<div class="photo-thumb"><video src="${x.src}" style="width:100%;height:100%;object-fit:cover" muted playsinline controls></video><button onclick="delWTMedia(${i})" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;border:none;cursor:pointer;font-size:11px">✕</button></div>`:`<div class="photo-thumb"><img src="${x.src}" alt=""><button onclick="delWTMedia(${i})" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;border:none;cursor:pointer;font-size:11px">✕</button></div>`).join('');html+=`<div class="photo-thumb photo-add" onclick="document.getElementById('wt-photo-in').click()"><i class="ti ti-plus" style="font-size:24px"></i><span>Hinzu</span></div>`;g.innerHTML=html;}
 function delWTMedia(i){S.wtMedia.splice(i,1);save();renderWTMedia();}
 
 // ── CALENDAR ──
@@ -1294,6 +1329,17 @@ function startAnim(canvasId,animKey){
   activeAnims[canvasId]=requestAnimationFrame(frame);
 }
 
+
+function deleteBuiltinEx(id){
+  if(!confirm('Übung aus der Bibliothek entfernen?'))return;
+  if(!S.hiddenEx)S.hiddenEx=[];
+  if(!S.hiddenEx.includes(id))S.hiddenEx.push(id);
+  save();renderLibrary();
+}
+function restoreAllEx(){
+  if(!confirm('Alle gelöschten Übungen wiederherstellen?'))return;
+  S.hiddenEx=[];save();renderLibrary();
+}
 // ═══════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════
