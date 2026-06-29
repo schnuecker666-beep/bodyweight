@@ -629,7 +629,7 @@ canvas{display:block;margin:0 auto}
           <button class="btn btn-s" style="flex:1;font-size:12px" onclick="addCexYoutube()"><i class="ti ti-brand-youtube" style="color:#f00"></i> YouTube</button>
         </div>
         <div style="display:flex;gap:6px">
-          <input type="text" id="cex-yt-url" placeholder="YouTube Link einfügen..." style="flex:1;font-size:13px">
+          <input type="text" id="cex-yt-url" placeholder="YouTube / Instagram / beliebiger Link..." style="flex:1;font-size:13px">
           <button class="btn btn-p" style="padding:8px 12px;font-size:13px" onclick="addCexYoutube()"><i class="ti ti-plus"></i></button>
         </div>
         <input type="file" id="cex-photo" accept="image/*" style="display:none" multiple onchange="addCexMedia(event,'photo')">
@@ -997,7 +997,7 @@ function renderLibrary(){
     const ln=ex.level==='L'?'Leicht':ex.level==='M'?'Mittel':'Schwer';
     const customTag=ex.custom?'<span class="badge bb">✏️ Eigene</span>':'';
     const mediaHTML=(ex.custom&&ex.media&&ex.media.length)?ex.media.map(m=>m.type==='video'?`<video muted playsinline webkit-playsinline src="${m.src}" style="width:100%;max-height:160px;border-radius:8px;display:block" controls></video>`:`<img src="${m.src}" style="width:100%;max-height:160px;object-fit:contain;border-radius:8px;display:block">`).join(''):'';
-    const myMedia=(!ex.custom)?`<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px"><div style="font-size:11px;color:var(--t2);margin-bottom:6px;font-weight:600;text-transform:uppercase">Meine Medien</div><div class="photo-grid" id="ex-media-${ex.id}" style="grid-template-columns:repeat(4,1fr);gap:5px"></div><div style="display:flex;gap:5px;margin-top:7px"><button class="btn btn-s" style="flex:1;padding:6px;font-size:11px" onclick="document.getElementById('ex-ph-${ex.id}').click()"><i class="ti ti-camera"></i> Foto</button><button class="btn btn-s" style="flex:1;padding:6px;font-size:11px" onclick="document.getElementById('ex-vd-${ex.id}').click()"><i class="ti ti-video"></i> Video</button><button class="btn btn-s" style="flex:1;padding:6px;font-size:11px" onclick="addExYoutube('${ex.id}')"><i class="ti ti-brand-youtube" style="color:#f00"></i> YT</button></div><div style="display:flex;gap:5px;margin-top:5px"><input type="text" id="ex-yt-${ex.id}" placeholder="YouTube Link..." style="flex:1;font-size:12px;padding:6px 8px"><button class="btn btn-p" style="padding:6px 10px" onclick="addExYoutube('${ex.id}')"><i class="ti ti-plus"></i></button></div><input type="file" id="ex-ph-${ex.id}" accept="image/*" style="display:none" onchange="addExMedia(event,'${ex.id}','photo')"><input type="file" id="ex-vd-${ex.id}" accept="video/*" style="display:none" onchange="addExMedia(event,'${ex.id}','video')"></div>`:'';
+    const myMedia=(!ex.custom)?`<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px"><div style="font-size:11px;color:var(--t2);margin-bottom:6px;font-weight:600;text-transform:uppercase">Meine Medien</div><div class="photo-grid" id="ex-media-${ex.id}" style="grid-template-columns:repeat(4,1fr);gap:5px"></div><div style="display:flex;gap:5px;margin-top:7px"><button class="btn btn-s" style="flex:1;padding:6px;font-size:11px" onclick="document.getElementById('ex-ph-${ex.id}').click()"><i class="ti ti-camera"></i> Foto</button><button class="btn btn-s" style="flex:1;padding:6px;font-size:11px" onclick="document.getElementById('ex-vd-${ex.id}').click()"><i class="ti ti-video"></i> Video</button><button class="btn btn-s" style="flex:1;padding:6px;font-size:11px" onclick="addExYoutube('${ex.id}')"><i class="ti ti-brand-youtube" style="color:#f00"></i> YT</button></div><div style="display:flex;gap:5px;margin-top:5px"><input type="text" id="ex-yt-${ex.id}" placeholder="Link einfügen..." style="flex:1;font-size:12px;padding:6px 8px"><button class="btn btn-p" style="padding:6px 10px" onclick="addExYoutube('${ex.id}')"><i class="ti ti-plus"></i></button></div><input type="file" id="ex-ph-${ex.id}" accept="image/*" style="display:none" onchange="addExMedia(event,'${ex.id}','photo')"><input type="file" id="ex-vd-${ex.id}" accept="video/*" style="display:none" onchange="addExMedia(event,'${ex.id}','video')"></div>`:'';
     const editBtn=ex.custom?`<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-s" style="flex:1;font-size:13px" onclick="editCustomEx('${ex.id}')"><i class="ti ti-edit"></i> Bearbeiten</button><button class="btn btn-r" style="flex:1;font-size:13px" onclick="deleteCustomEx('${ex.id}')"><i class="ti ti-trash"></i> Löschen</button></div>`:'';
     return`<div class="ex-card" id="ex-card-${ex.id}"><div class="ex-header" onclick="toggleLib('${ex.id}')"><div style="flex:1"><div style="font-size:16px;font-weight:500">${ex.name}</div><div style="font-size:13px;color:var(--t2);margin-top:2px">${ex.sets} · ${ex.muscle}</div><div style="margin-top:5px"><span class="badge ${lc}">${ln}</span><span class="badge" style="background:var(--card2);color:var(--t2)">${ex.equip||'Keine'}</span>${customTag}</div></div><i class="ti ti-chevron-down" id="chev-${ex.id}" style="color:var(--t3);font-size:18px"></i></div><div class="ex-body" id="body-${ex.id}">${mediaHTML?'<div style="background:#111318;padding:10px">'+mediaHTML+'</div>':''}<div style="background:#111318;padding:10px 0 6px"><canvas id="anim-${ex.id}" width="260" height="130"></canvas><div style="font-size:13px;color:var(--t2);text-align:center;margin-top:5px;padding:0 12px">${ex.desc||''}</div></div><div style="padding:14px"><div style="font-size:11px;color:var(--t2);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Schritt für Schritt</div>${(ex.steps||[]).map((st,i)=>`<div style="display:flex;gap:9px;margin-bottom:9px;align-items:flex-start"><div style="width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">${i+1}</div><div style="font-size:14px;line-height:1.6">${st}</div></div>`).join('')}${ex.error?`<div style="background:#1a0f0f;border:1px solid #3a1010;border-radius:8px;padding:9px 12px;font-size:13px;color:#f87171;margin-top:7px"><i class="ti ti-alert-triangle" style="margin-right:5px"></i><strong>Fehler:</strong> ${ex.error}</div>`:''}${myMedia}${editBtn}<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-s" style="flex:1;font-size:13px" onclick="addToBuilderFromLib('${ex.id}')"><i class="ti ti-plus"></i> Baukasten</button>${ex.custom?'':`<button class="btn btn-r" style="padding:10px 14px;font-size:13px" onclick="deleteBuiltinEx('${ex.id}')"><i class="ti ti-trash"></i></button>`}</div></div></div></div>`;
   }).join('');
@@ -1372,19 +1372,27 @@ function ytId(url){
   const m=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
   return m?m[1]:null;
 }
-function ytEmbed(id,w='100%',h='200'){
-  return`<iframe src="https://www.youtube.com/embed/${id}?playsinline=1&rel=0" width="${w}" height="${h}" frameborder="0" allowfullscreen allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" style="border-radius:8px;display:block;width:100%"></iframe>`;
+function linkIcon(url){
+  if(url.includes('youtube.com')||url.includes('youtu.be'))return{icon:'ti-brand-youtube',color:'#f00',label:'YouTube'};
+  if(url.includes('instagram.com'))return{icon:'ti-brand-instagram',color:'#e1306c',label:'Instagram'};
+  if(url.includes('tiktok.com'))return{icon:'ti-brand-tiktok',color:'#69c9d0',label:'TikTok'};
+  return{icon:'ti-link',color:'var(--accent)',label:'Link öffnen'};
+}
+function linkCard(url){
+  const li=linkIcon(url);
+  const ytid=ytId(url);
+  const thumb=ytid?`<img src="https://img.youtube.com/vi/${ytid}/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;opacity:.85">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--card2)"><i class="ti ${li.icon}" style="font-size:40px;color:${li.color}"></i></div>`;
+  return`<div onclick="window.open('${url}','_blank')" style="position:relative;width:100%;height:120px;border-radius:8px;overflow:hidden;cursor:pointer;background:#000;margin-bottom:4px;border:1px solid var(--border)">${thumb}<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div style="width:52px;height:52px;background:rgba(0,0,0,.7);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff"><i class="ti ti-player-play" style="color:#fff;font-size:22px;margin-left:3px"></i></div></div><div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.8));padding:6px 8px;font-size:12px;color:#fff"><i class="ti ${li.icon}" style="margin-right:4px"></i>${li.label} öffnen ↗</div></div>`;
 }
 function renderMediaItem(m,i,delFn){
-  if(m.type==='youtube')
-    return`<div style="margin-bottom:8px;position:relative">${ytEmbed(m.ytId)}<button onclick="${delFn}(${i})" style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:12px">✕</button></div>`;
+  if(m.type==='youtube'||m.type==='link')
+    return`<div style="margin-bottom:8px;position:relative">${linkCard(m.url||('https://youtube.com/watch?v='+m.ytId))}<button onclick="${delFn}(${i})" style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:12px">✕</button></div>`;
   if(m.type==='video')
     return`<div style="margin-bottom:8px;position:relative"><video src="${m.src}" style="width:100%;max-height:220px;border-radius:8px;display:block" controls muted playsinline webkit-playsinline preload="metadata"></video><button onclick="${delFn}(${i})" style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:12px">✕</button></div>`;
   return`<div style="margin-bottom:8px;position:relative"><img src="${m.src}" style="width:100%;max-height:220px;object-fit:contain;border-radius:8px;display:block"><button onclick="${delFn}(${i})" style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:12px">✕</button></div>`;
 }
 function renderThumbItem(m,i,delFn){
-  if(m.type==='youtube')
-    return`<div class="photo-thumb" style="position:relative"><img src="https://img.youtube.com/vi/${m.ytId}/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><i class="ti ti-brand-youtube" style="font-size:28px;color:#f00;filter:drop-shadow(0 0 4px #000)"></i></div><button onclick="${delFn}(${i})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:10px">✕</button></div>`;
+  if(m.type==='youtube'||m.type==='link'){const li=linkIcon(m.url||'');const ytid=m.ytId||ytId(m.url||'');const thumb=ytid?`<img src="https://img.youtube.com/vi/${ytid}/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--card2)"><i class="ti ${li.icon}" style="font-size:24px;color:${li.color}"></i></div>`;return`<div class="photo-thumb" style="position:relative" onclick="window.open('${m.url||('https://youtube.com/watch?v='+m.ytId)}','_blank')">${thumb}<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><i class="ti ti-player-play" style="font-size:20px;color:#fff;filter:drop-shadow(0 0 4px #000)"></i></div><button onclick="event.stopPropagation();${delFn}(${i})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:10px">✕</button></div>`;}
   if(m.type==='video')
     return`<div class="photo-thumb" style="position:relative"><video src="${m.src}" style="width:100%;height:100%;object-fit:cover" muted playsinline webkit-playsinline preload="metadata"></video><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><i class="ti ti-player-play" style="font-size:24px;color:#fff;filter:drop-shadow(0 0 4px #000)"></i></div><button onclick="${delFn}(${i})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:10px">✕</button></div>`;
   return`<div class="photo-thumb" style="position:relative"><img src="${m.src}" style="width:100%;height:100%;object-fit:cover"><button onclick="${delFn}(${i})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;border:none;cursor:pointer;font-size:10px">✕</button></div>`;
@@ -1392,10 +1400,9 @@ function renderThumbItem(m,i,delFn){
 
 function addCexYoutube(){
   const url=document.getElementById('cex-yt-url').value.trim();
-  if(!url)return;
+  if(!url){alert('Bitte einen Link eingeben!');return;}
   const id=ytId(url);
-  if(!id){alert('Kein gültiger YouTube-Link!');return;}
-  cexMedia.push({type:'youtube',ytId:id});
+  cexMedia.push(id?{type:'youtube',ytId:id,url}:{type:'link',url});
   renderCexMedia();
   document.getElementById('cex-yt-url').value='';
 }
@@ -1403,12 +1410,11 @@ function addCexYoutube(){
 function addExYoutube(exId){
   const inp=document.getElementById('ex-yt-'+exId);
   if(!inp)return;
-  const url=inp.value.trim();if(!url)return;
+  const url=inp.value.trim();if(!url){alert('Bitte einen Link eingeben!');return;}
   const id=ytId(url);
-  if(!id){alert('Kein gültiger YouTube-Link! Beispiel: https://youtube.com/watch?v=...');return;}
   if(!S.exMedia)S.exMedia={};
   if(!S.exMedia[exId])S.exMedia[exId]=[];
-  S.exMedia[exId].unshift({type:'youtube',ytId:id,date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'})});
+  S.exMedia[exId].unshift(id?{type:'youtube',ytId:id,url,date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'})}:{type:'link',url,date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'})});
   save();inp.value='';
   // Refresh animation area
   const animCanvas=document.getElementById('anim-'+exId);
